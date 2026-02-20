@@ -14,7 +14,7 @@ def launch_setup(context, *args, **kwargs):
         'marker_size': LaunchConfiguration('marker_size'),
         'marker_id': LaunchConfiguration('marker_id'),
         'reference_frame': LaunchConfiguration('reference_frame'),
-        'camera_frame': 'stereo_gazebo_' + eye + '_camera_optical_frame',
+        'camera_frame': LaunchConfiguration('camera_frame'),
         'marker_frame': LaunchConfiguration('marker_frame'),
         'corner_refinement': LaunchConfiguration('corner_refinement'),
     }
@@ -22,9 +22,10 @@ def launch_setup(context, *args, **kwargs):
     aruco_single = Node(
         package='aruco_ros',
         executable='single',
+        name=LaunchConfiguration('node_name'),
         parameters=[aruco_single_params],
-        remappings=[('/camera_info', '/stereo/' + eye + '/camera_info'),
-                    ('/image', '/stereo/' + eye + '/image_rect_color')],
+        remappings=[('/camera_info', LaunchConfiguration('remap_camera_info_to')),
+                    ('/image', LaunchConfiguration('remap_image_to'))],
     )
 
     return [aruco_single]
@@ -32,13 +33,23 @@ def launch_setup(context, *args, **kwargs):
 
 def generate_launch_description():
 
+    node_name_arg = DeclareLaunchArgument(
+        'node_name',
+        default_value='aruco_single',
+        description='ROS node name for this aruco instance.'
+)
+    camera_frame_arg = DeclareLaunchArgument(
+        'camera_frame', default_value='/left_eye_camera_link',
+        description='Camera frame. '
+    )
+
     marker_id_arg = DeclareLaunchArgument(
-        'marker_id', default_value='582',
+        'marker_id', default_value='2',
         description='Marker ID. '
     )
 
     marker_size_arg = DeclareLaunchArgument(
-        'marker_size', default_value='0.34',
+        'marker_size', default_value='0.1651',
         description='Marker size in m. '
     )
 
@@ -65,15 +76,31 @@ def generate_launch_description():
         choices=['NONE', 'HARRIS', 'LINES', 'SUBPIX'],
     )
 
+    remap_camera_info_to_arg = DeclareLaunchArgument(
+        'remap_camera_info_to',
+        default_value='/mavic_1/image/camera_info',
+        description='Actual camera_info topic to subscribe to.'
+    )
+
+    remap_image_to_arg = DeclareLaunchArgument(
+        'remap_image_to',
+        default_value='/mavic_1/decoded',
+        description='Actual image topic to subscribe to.'
+    )
+
     # Create the launch description and populate
     ld = LaunchDescription()
 
+    ld.add_action(node_name_arg)
+    ld.add_action(camera_frame_arg)
     ld.add_action(marker_id_arg)
     ld.add_action(marker_size_arg)
     ld.add_action(eye_arg)
     ld.add_action(marker_frame_arg)
     ld.add_action(reference_frame)
     ld.add_action(corner_refinement_arg)
+    ld.add_action(remap_camera_info_to_arg)
+    ld.add_action(remap_image_to_arg)
 
     ld.add_action(OpaqueFunction(function=launch_setup))
 
