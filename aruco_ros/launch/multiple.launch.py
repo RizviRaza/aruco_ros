@@ -18,12 +18,12 @@ def generate_launch_description():
         launch_arguments={
             # core params
             'node_name': 'aruco_drone',
-            'camera_frame': '/mavic_1/camera_link',
+            'camera_frame': 'mavic_1/camera_link',
             'marker_id': '3',
             'marker_size': '0.1651',  # To check
             'eye': 'left',
-            'marker_frame': 'aruco_marker_frame_left',
-            'reference_frame': '',
+            'marker_frame': 'aruco_marker_frame_left_drone',
+            'reference_frame': 'mavic_1/camera_link',
             'corner_refinement': 'LINES',
 
             # remaps
@@ -37,12 +37,12 @@ def generate_launch_description():
         launch_arguments={
             # core params
             'node_name': 'aruco_gs',
-            'camera_frame': '/gs/camera_link',
+            'camera_frame': 'gs/camera_link',
             'marker_id': '3',
             'marker_size': '0.1651', # To check
             'eye': 'left',
-            'marker_frame': 'aruco_marker_frame_left',
-            'reference_frame': '',
+            'marker_frame': 'aruco_marker_frame_left_gs',
+            'reference_frame': 'gs/camera_link',
             'corner_refinement': 'LINES',
 
             # remaps
